@@ -66,10 +66,14 @@ function DashboardShellInner({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { SubscriptionProvider } from "@/hooks/use-subscription";
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <DashboardShellInner>{children}</DashboardShellInner>
+      <SubscriptionProvider>
+        <DashboardShellInner>{children}</DashboardShellInner>
+      </SubscriptionProvider>
     </AuthProvider>
   );
 }

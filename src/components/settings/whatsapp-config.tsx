@@ -31,6 +31,7 @@ import {
   AccordionContent,
 } from '@/components/ui/accordion';
 import type { WhatsAppConfig as WhatsAppConfigType } from '@/types';
+import { EmbeddedSignupButton, type EmbeddedSignupResult } from './embedded-signup-button';
 
 const MASKED_TOKEN = '••••••••••••••••';
 
@@ -476,6 +477,16 @@ export function WhatsAppConfig() {
     toast.success(t('webhookCopied'));
   }
 
+  function handleEmbeddedSignupSuccess(result: EmbeddedSignupResult) {
+    if (result.phone_number_id) setPhoneNumberId(result.phone_number_id);
+    if (result.waba_id) setWabaId(result.waba_id);
+    if (result.access_token) {
+      setAccessToken(result.access_token);
+      setTokenEdited(true);
+    }
+    toast.success('Facebook connected! Review the fields below and click Save.');
+  }
+
   if (loading) {
     return (
       <section className="animate-in fade-in-50 duration-200">
@@ -725,7 +736,35 @@ export function WhatsAppConfig() {
           </Alert>
         )}
 
-        {/* API Credentials */}
+        {/* ── Embedded Signup — Quick Connect ── */}
+        <Card className="border-[#1877F2]/30 bg-[#1877F2]/5">
+          <CardHeader>
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="#1877F2">
+                <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.03 4.388 11.022 10.125 11.927v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.884v2.27h3.328l-.532 3.49h-2.796v8.437C19.612 23.095 24 18.103 24 12.073z" />
+              </svg>
+              Quick Connect via Facebook
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Sign in with Facebook to automatically fill in your WhatsApp Business Account ID,
+              Phone Number ID, and Access Token — no manual copy-pasting needed.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <EmbeddedSignupButton
+              onSuccess={handleEmbeddedSignupSuccess}
+              onError={(msg) => toast.error(msg, { duration: 8000 })}
+              disabled={!canEditSettings || saving}
+            />
+            <p className="text-xs text-muted-foreground">
+              Clicking "Connect with Facebook" opens an official Meta popup. After you select your
+              WhatsApp Business Account, the fields below are pre-filled automatically.
+              You can review them and then click <strong>Save</strong>.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* API Credentials — manual fallback */}
         <Card>
           <CardHeader>
             <CardTitle className="text-foreground">{t('apiCredentialsTitle')}</CardTitle>
